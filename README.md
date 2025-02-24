@@ -58,8 +58,9 @@ See the [Playing Video](https://developer.synamedia.com/senza/docs/playing-video
 ```bash
 npm ci
 npx webpack -w --config webpack.config.js
-open index.html
 ```
+open index.html
+
 ## Build and Run Locally
 This setup creates a local server at localhost:3000
 
@@ -67,3 +68,17 @@ This setup creates a local server at localhost:3000
 npm ci
 npm run serve
 ```
+## Build & Deploy
+start with 
+```npm ci```
+build with
+```npm run build```
+upload:
+1. use aws-sso to get an aws token
+    ```aws-sso --profile default --maximum-duration 14400 --region eu-west-1```
+2. push `dist` folder to aws s3
+**replace <your-bucket> with your bucket name
+```aws s3 cp dist s3://hyperscale-webui/<your-bucket> --recursive --cache-control no-store```
+
+webui URL:
+your webui will be exposed in https://hyperscale-webui.s3.eu-west-1.amazonaws.com/<your bucket>/index.html

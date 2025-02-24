@@ -199,6 +199,12 @@ export class SenzaShakaPlayer extends shaka.Player {
       remotePlayer.setTextTrackVisibility(isVisible);
     }
 
+    configure(config, value) {
+        super.configure(config)
+        this.remotePlayer.configure(config)
+        return true
+    }
+
     selectAudioLanguage(language, role, channelsCount, safeMargin, codec, spatialAudio) {
       console.log("set audio:", language);
       super.selectAudioLanguage(language, role, channelsCount, safeMargin, codec, spatialAudio);

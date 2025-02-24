@@ -6,15 +6,19 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "serve": "webpack serve"
+    "serve": "webpack serve",
+    "build": "webpack --config webpack.config.js"
   },
   "devDependencies": {
+    "css-loader": "^7.1.2",
+    "html-webpack-plugin": "^5.6.3",
+    "mini-css-extract-plugin": "^2.9.2",
     "webpack": "^5.72.1",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.1.0"
   },
   "dependencies": {
-    "senza-sdk": "^4.2.14",
+    "senza-sdk": "../../hyperscale/sdk",
     "shaka-player": "^4.12.5"
   }
 }

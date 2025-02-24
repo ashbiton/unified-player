@@ -1,13 +1,15 @@
 import { init, uiReady, lifecycle } from "senza-sdk";
-import { SenzaShakaPlayer as ShakaPlayer } from "./shakaPlayer.js";
+import "./styles.css"
 
-const TEST_VIDEO = "https://storage.googleapis.com/shaka-demo-assets/angel-one/dash.mpd";
+// const TEST_VIDEO = "https://storage.googleapis.com/shaka-demo-assets/angel-one/dash.mpd";
+const TEST_VIDEO = "https://d3aebn8jgh8nvm.cloudfront.net/from-mediaconvert/Sintel-sub/default.mpd";
 
 let player;
-
-let audioLangs = ['en'];
+const defaultAudioLang = "por"
+const defaultSubsLang = "fra"
+let audioLangs = [defaultAudioLang];
 let selectedAudioIndex = 0;
-let textLangs = ['en'];
+let textLangs = [defaultSubsLang];
 let selectedTextIndex = 0;
 
 window.addEventListener("load", async () => {
@@ -15,18 +17,21 @@ window.addEventListener("load", async () => {
     await init();
     player = new ShakaPlayer();
     await player.attach(video);
+    player.configure({
+      preferredAudioLanguage: defaultAudioLang,
+      preferredSubtitlesLanguage: defaultSubsLang
+    })
+    player.setTextTrackVisibility(true);
     await player.load(TEST_VIDEO);
     await video.play();
 
     audioLangs = player.getAudioLanguages();
     textLangs = player.getTextLanguages();
-    selectedAudioIndex = audioLangs.indexOf('en');
-    selectedTextIndex = audioLangs.indexOf('en');
+    selectedAudioIndex = audioLangs.indexOf(defaultAudioLang);
+    selectedTextIndex = audioLangs.indexOf(defaultSubsLang);
 
     console.log("audio", audioLangs, selectedAudioIndex);
     console.log("text", textLangs, selectedTextIndex);
-
-    player.setTextTrackVisibility(true);
 
     player.remotePlayer.addEventListener("tracksupdate", () => {
       console.log("Loaded tracks!")
@@ -49,8 +54,7 @@ document.addEventListener("keydown", async function (event) {
     case "ArrowUp": changeAudioLang(-1); break;
     case "ArrowDown": changeAudioLang(1); break;
     case "ArrowLeft": changeTextLang(-1); break;
-    case "ArrowRight": changeTextLang(1); 
-    break;
+    case "ArrowRight": changeTextLang(1); break;
     default: return;
   }
   event.preventDefault();
@@ -69,16 +73,16 @@ async function toggleBackground() {
 function changeAudioLang(delta) {
   selectedAudioIndex = (selectedAudioIndex + delta + audioLangs.length) % audioLangs.length;
   player.selectAudioLanguage(audioLangs[selectedAudioIndex]);
-  udpateBanner();
+  updateBanner();
 }
 
 function changeTextLang(delta) {
   selectedTextIndex = (selectedTextIndex + delta + textLangs.length) % textLangs.length;
   player.selectTextLanguage(textLangs[selectedTextIndex]);
-  udpateBanner();
+  updateBanner();
 }
 
-function udpateBanner() {
+function updateBanner() {
   banner.innerHTML =
     `audio: ${audioLangs[selectedAudioIndex]}<br>` +
     `text: ${textLangs[selectedTextIndex]}`
