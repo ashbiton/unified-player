@@ -18,6 +18,7 @@
     "webpack-dev-server": "^5.1.0"
   },
   "dependencies": {
+    "iso-639-3": "^3.0.1",
     "senza-sdk": "../../hyperscale/sdk",
     "shaka-player": "^4.12.5"
   }

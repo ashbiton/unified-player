@@ -1,4 +1,5 @@
 import { init, uiReady, lifecycle, ShakaPlayer } from "senza-sdk";
+import { iso6393To1 } from "iso-639-3"
 import "./styles.css"
 
 // const TEST_VIDEO = "https://storage.googleapis.com/shaka-demo-assets/angel-one/dash.mpd";
@@ -6,15 +7,16 @@ const TEST_VIDEO = "https://d3aebn8jgh8nvm.cloudfront.net/from-mediaconvert/Sint
 
 let player;
 let audioLangs, textLangs, selectedTextIndex, selectedAudioIndex;
-
+const preferredAudioLanguage = "eng"
+const preferredSubtitlesLanguage = "fra"
 window.addEventListener("load", async () => {
   try {
     await init();
     player = new ShakaPlayer();
     await player.attach(video);
     player.configure({
-      preferredAudioLanguage: "por",
-      preferredSubtitlesLanguage: "fra"
+      preferredAudioLanguage,
+      preferredSubtitlesLanguage,
     })
     player.setTextTrackVisibility(true);
     await player.load(TEST_VIDEO);
@@ -27,11 +29,11 @@ window.addEventListener("load", async () => {
        * this is a hack. we are relaying on the fact that we know (!) the languages in the MPD. 
        * what we need to do is use the getVariants to find the selected tracks.
        */
-      selectedAudioIndex = audioLangs.indexOf("pt");
-      selectedTextIndex = textLangs.indexOf("fr");
+      selectedAudioIndex = audioLangs.indexOf(iso6393To1[preferredAudioLanguage]);
+      selectedTextIndex = textLangs.indexOf(iso6393To1[preferredSubtitlesLanguage]);
       console.log("INFO", audioLangs, textLangs, selectedAudioIndex, selectedTextIndex);
       updateBanner()
-    }, 3000)
+    }, 2000)
     uiReady();
   } catch (error) {
     console.error(error);
