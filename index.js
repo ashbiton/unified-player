@@ -2,13 +2,41 @@ import { init, uiReady, lifecycle, ShakaPlayer } from "senza-sdk";
 import { iso6393To1 } from "iso-639-3"
 import "./styles.css"
 
-// const TEST_VIDEO = "https://storage.googleapis.com/shaka-demo-assets/angel-one/dash.mpd";
-const TEST_VIDEO = "https://d3aebn8jgh8nvm.cloudfront.net/from-mediaconvert/Sintel-sub/default.mpd";
+const transform = (lang) => iso6393To1[lang] ?? lang
+
+const TEST_VIDEOS = {
+  AngelOne: {
+    url: "https://storage.googleapis.com/shaka-demo-assets/angel-one/dash.mpd",
+    audioLang: "fr",
+    subsLang: "en",
+    // general info. not used in this app
+    audioLanguages: ["es", "de", "en", "fr", "it"],
+    subsLanguages: ["en"], // supported in local player but not in remote since subs are wvtt
+  },
+  Sintel: {
+    url: "https://d3aebn8jgh8nvm.cloudfront.net/from-mediaconvert/Sintel-sub/default.mpd",
+    audioLang: "eng",
+    subsLang: "fra",
+    // general info. not used in this app
+    audioLanguages: ["eng", "por"],
+    subsLanguages: ["nl", "fra", "eng"]
+  },
+  Clock: {
+    url: "https://d3aebn8jgh8nvm.cloudfront.net/test/testpic_2s/default.mpd",
+    audioLang: "en",
+    subsLang: "en",
+    // general info. not used in this app
+    audioLanguages: ["en"],
+    subsLanguages: ["en", "se", "qb", "no"],
+  }
+}
+
+const TEST_VIDEO = TEST_VIDEOS.Sintel
 
 let player;
 let audioLangs, textLangs, selectedTextIndex, selectedAudioIndex;
-const preferredAudioLanguage = "eng"
-const preferredSubtitlesLanguage = "fra"
+const preferredAudioLanguage = TEST_VIDEO.audioLang
+const preferredSubtitlesLanguage = TEST_VIDEO.subsLang
 window.addEventListener("load", async () => {
   try {
     await init();
@@ -19,7 +47,7 @@ window.addEventListener("load", async () => {
       preferredSubtitlesLanguage,
     })
     player.setTextTrackVisibility(true);
-    await player.load(TEST_VIDEO);
+    await player.load(TEST_VIDEO.url);
     await video.play();
 
     setTimeout(() => {
@@ -29,8 +57,8 @@ window.addEventListener("load", async () => {
        * this is a hack. we are relaying on the fact that we know (!) the languages in the MPD. 
        * what we need to do is use the getVariants to find the selected tracks.
        */
-      selectedAudioIndex = audioLangs.indexOf(iso6393To1[preferredAudioLanguage]);
-      selectedTextIndex = textLangs.indexOf(iso6393To1[preferredSubtitlesLanguage]);
+      selectedAudioIndex = audioLangs.indexOf(transform(TEST_VIDEO.audioLang));
+      selectedTextIndex = textLangs.indexOf(transform(TEST_VIDEO.subsLang));
       console.log("INFO", audioLangs, textLangs, selectedAudioIndex, selectedTextIndex);
       updateBanner()
     }, 2000)
@@ -85,6 +113,6 @@ function changeTextLang(delta) {
 
 function updateBanner() {
   document.getElementById("banner").innerHTML =
-    `audio: ${audioLangs[selectedAudioIndex]}<br>` +
-    `text: ${textLangs[selectedTextIndex]}`
+    `audio: ${audioLangs[selectedAudioIndex] ?? "n/a"}<br>` +
+    `text: ${textLangs[selectedTextIndex] ?? "n/a"}`
 }
