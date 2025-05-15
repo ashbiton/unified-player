@@ -36,7 +36,7 @@ const TEST_VIDEO = TEST_VIDEOS.Sintel
 let player;
 let audioLangs, textLangs, selectedTextIndex, selectedAudioIndex;
 const preferredAudioLanguage = TEST_VIDEO.audioLang
-const preferredSubtitlesLanguage = TEST_VIDEO.subsLang
+const preferredTextLanguage = TEST_VIDEO.subsLang
 window.addEventListener("load", async () => {
   try {
     await init();
@@ -44,22 +44,19 @@ window.addEventListener("load", async () => {
     await player.attach(video);
     player.configure({
       preferredAudioLanguage,
-      preferredSubtitlesLanguage,
+      preferredTextLanguage,
     })
     player.setTextTrackVisibility(true);
     await player.load(TEST_VIDEO.url);
     await video.play();
 
+    lifecycle.addEventListener("onstatechange", () => {
+      updateIndexes()
+      updateBanner()
+    })
+
     setTimeout(() => {
-      audioLangs = player.getAudioLanguages();
-      textLangs = player.getTextLanguages();
-      /**
-       * this is a hack. we are relaying on the fact that we know (!) the languages in the MPD. 
-       * what we need to do is use the getVariants to find the selected tracks.
-       */
-      selectedAudioIndex = audioLangs.indexOf(transform(TEST_VIDEO.audioLang));
-      selectedTextIndex = textLangs.indexOf(transform(TEST_VIDEO.subsLang));
-      console.log("INFO", audioLangs, textLangs, selectedAudioIndex, selectedTextIndex);
+
       updateBanner()
     }, 2000)
     uiReady();
@@ -68,14 +65,26 @@ window.addEventListener("load", async () => {
   }
 });
 
+const updateIndexes = () => {
+  audioLangs = player.getAudioLanguages();
+  textLangs = player.getTextLanguages();
+  /**
+   * this is a hack. we are relaying on the fact that we know (!) the languages in the MPD. 
+   * what we need to do is use the getVariants to find the selected tracks.
+   */
+  selectedAudioIndex = audioLangs.indexOf(transform(TEST_VIDEO.audioLang));
+  selectedTextIndex = textLangs.indexOf(transform(TEST_VIDEO.subsLang));
+  console.log("UPDATE INDEXES", audioLangs, textLangs, selectedAudioIndex, selectedTextIndex);
+}
+
 document.addEventListener("keydown", async function (event) {
   switch (event.key) {
     case "Enter": await toggleBackground(); break;
-    case "Escape": video.muted = !video.muted; break;
-    case "ArrowUp": changeAudioLang(-1); break;
-    case "ArrowDown": changeAudioLang(1); break;
-    case "ArrowLeft": changeTextLang(-1); break;
-    case "ArrowRight": changeTextLang(1); break;
+    // case "Escape": video.currentTime += 10; // not working!!
+    case "ArrowUp": await video.play(); break;
+    case "ArrowDown": await video.pause(); break;
+    case "ArrowLeft": changeTextLang(1); break;
+    case "ArrowRight": changeAudioLang(1); break;
     default: return;
   }
   event.preventDefault();
